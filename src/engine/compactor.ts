@@ -63,7 +63,7 @@ export async function compactConversation(conversationId: string): Promise<strin
   try {
     await embedAndStore('memory', memoryId, result.summary);
   } catch (err) {
-    logger.warn(`  Could not generate embedding (Ollama may not be running): ${err}`);
+    logger.warn(`  Could not generate embedding: ${err}`);
   }
 
   return memoryId;

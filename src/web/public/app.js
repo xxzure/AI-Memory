@@ -37,7 +37,7 @@ async function render() {
 async function renderConversations(el) {
   const convos = await api('/conversations?limit=50');
   if (!convos.length) {
-    el.innerHTML = '<p style="color:var(--text2)">No conversations yet. Import some with: <code>ai-memory import chatgpt export.json</code></p>';
+    el.innerHTML = '<div class="empty-state">No conversations yet.<br><code>ai-memory import chatgpt export.json</code></div>';
     return;
   }
   el.innerHTML = convos.map(c => `
@@ -51,7 +51,7 @@ async function renderConversations(el) {
 async function renderMemories(el) {
   const mems = await api('/memories?limit=50');
   if (!mems.length) {
-    el.innerHTML = '<p style="color:var(--text2)">No memories yet. Run: <code>ai-memory compact</code></p>';
+    el.innerHTML = '<div class="empty-state">No memories yet.<br><code>ai-memory compact</code></div>';
     return;
   }
   el.innerHTML = mems.map(m => {
@@ -99,10 +99,10 @@ async function renderPortrait(el) {
         <h2>Advice</h2>
         <ul>${prof.advice.map(a => `<li>${esc(a)}</li>`).join('')}</ul>
       </div>
-      <div class="meta">Generated: ${fmtDate(p.generated_at)}</div>
+      <div class="meta" style="margin-top:16px;text-align:center">Generated ${fmtDate(p.generated_at)}</div>
     `;
   } catch {
-    el.innerHTML = '<p style="color:var(--text2)">No portrait yet. Run: <code>ai-memory portrait</code></p>';
+    el.innerHTML = '<div class="empty-state">No portrait yet.<br><code>ai-memory portrait</code></div>';
   }
 }
 
@@ -127,14 +127,14 @@ async function doSearch() {
 
   let html = '';
   if (memories.length) {
-    html += '<h3 style="margin:12px 0 8px">Memories</h3>';
+    html += '<div class="section-heading">Memories</div>';
     html += memories.map(m => {
       const topics = JSON.parse(m.topics || '[]');
       return `<div class="card"><h3>${esc(m.summary.slice(0, 120))}</h3><div class="tags">${topics.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div></div>`;
     }).join('');
   }
   if (messages.length) {
-    html += '<h3 style="margin:12px 0 8px">Messages</h3>';
+    html += '<div class="section-heading">Messages</div>';
     html += messages.map(m => `
       <div class="card" onclick="showConversation('${m.conversation_id}')">
         <div class="meta">${m.role} &middot; ${fmtDate(m.created_at)} &middot; ${esc(m.conversation_title || '')}</div>
@@ -142,7 +142,7 @@ async function doSearch() {
       </div>
     `).join('');
   }
-  if (!html) html = '<p style="color:var(--text2)">No results found.</p>';
+  if (!html) html = '<div class="empty-state">No results found.</div>';
   $('#search-results').innerHTML = html;
 }
 
@@ -150,7 +150,7 @@ async function showConversation(id) {
   const data = await api(`/conversations/${id}`);
   $('#modal-content').innerHTML = `
     <h2>${esc(data.title || 'Untitled')}</h2>
-    <div class="meta" style="margin-bottom:16px">${data.source} &middot; ${fmtDate(data.created_at)}</div>
+    <div class="meta" style="margin-bottom:20px">${data.source} &middot; ${fmtDate(data.created_at)}</div>
     ${data.messages.map(m => `
       <div class="message">
         <div class="role">${m.role}</div>

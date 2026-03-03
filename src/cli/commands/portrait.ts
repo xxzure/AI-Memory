@@ -1,5 +1,6 @@
 import { generatePortrait, getLatestPortrait } from '../../portrait/analyzer.js';
 import { logger } from '../../utils/logger.js';
+import type { PortraitProfile } from '../../portrait/types.js';
 
 export async function runPortrait(opts: { refresh?: boolean }) {
   if (!opts.refresh) {
@@ -17,15 +18,7 @@ export async function runPortrait(opts: { refresh?: boolean }) {
   printPortrait(profile);
 }
 
-function printPortrait(profile: {
-  summary: string;
-  interests: string[];
-  communication_style: string;
-  technical_strengths: string[];
-  patterns: string[];
-  goals: string[];
-  advice: string[];
-}) {
+function printPortrait(profile: PortraitProfile) {
   console.log('\n=== Your AI-Generated Portrait ===\n');
   console.log(profile.summary);
 

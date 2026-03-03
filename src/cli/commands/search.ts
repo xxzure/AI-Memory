@@ -4,6 +4,10 @@ import { logger } from '../../utils/logger.js';
 
 export async function runSearch(query: string, opts: { memories?: boolean; limit?: string }) {
   const limit = parseInt(opts.limit || '20', 10);
+  if (isNaN(limit)) {
+    logger.error('Invalid --limit value: must be a number');
+    process.exit(1);
+  }
 
   if (opts.memories) {
     const results = searchMemories(query, limit);

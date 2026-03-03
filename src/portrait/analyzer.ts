@@ -4,7 +4,7 @@ import { llmGenerate } from '../utils/llm.js';
 import { countTokens } from '../engine/tokenizer.js';
 import { logger } from '../utils/logger.js';
 import { v4 as uuid } from 'uuid';
-import type { PortraitProfile } from './types.js';
+import type { Portrait, PortraitProfile } from './types.js';
 
 const MAX_MEMORY_SAMPLE = 50;
 
@@ -15,10 +15,18 @@ export async function generatePortrait(): Promise<{ id: string; profile: Portrai
     throw new Error('No memories found. Run `ai-memory compact` first to create memories from conversations.');
   }
 
-  // Sample if too many
-  const sampled = memories.length > MAX_MEMORY_SAMPLE
-    ? memories.sort(() => Math.random() - 0.5).slice(0, MAX_MEMORY_SAMPLE)
-    : memories;
+  // Sample if too many (Fisher-Yates shuffle on a copy)
+  let sampled;
+  if (memories.length > MAX_MEMORY_SAMPLE) {
+    const copy = [...memories];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    sampled = copy.slice(0, MAX_MEMORY_SAMPLE);
+  } else {
+    sampled = memories;
+  }
 
   const memorySummaries = sampled.map((m, i) => {
     const topics = JSON.parse(m.topics || '[]').join(', ');
@@ -55,7 +63,7 @@ Respond ONLY with valid JSON, no markdown fences.`;
   return { id, profile };
 }
 
-export function getLatestPortrait(): { id: string; generated_at: number; profile: PortraitProfile; token_count: number | null } | undefined {
+export function getLatestPortrait(): Portrait | undefined {
   const db = getDb();
   const row = db.prepare('SELECT * FROM portraits ORDER BY generated_at DESC LIMIT 1').get() as {
     id: string; generated_at: number; profile: string; token_count: number | null;

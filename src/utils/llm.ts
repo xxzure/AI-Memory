@@ -1,5 +1,4 @@
 import { getConfig } from './config.js';
-import { logger } from './logger.js';
 
 export interface LLMResponse {
   content: string;
@@ -10,13 +9,17 @@ export async function llmGenerate(prompt: string, system?: string): Promise<LLMR
   const config = getConfig();
   const { provider, model, baseUrl, apiKey } = config.llm;
 
+  if ((provider === 'openai' || provider === 'anthropic') && !apiKey) {
+    throw new Error(`Provider "${provider}" requires an apiKey in config`);
+  }
+
   switch (provider) {
     case 'ollama':
       return ollamaGenerate(baseUrl, model, prompt, system);
     case 'openai':
-      return openaiGenerate(baseUrl, model, apiKey!, prompt, system);
+      return openaiGenerate(baseUrl, model, apiKey as string, prompt, system);
     case 'anthropic':
-      return anthropicGenerate(baseUrl, model, apiKey!, prompt, system);
+      return anthropicGenerate(baseUrl, model, apiKey as string, prompt, system);
     default:
       throw new Error(`Unknown LLM provider: ${provider}`);
   }
@@ -93,10 +96,19 @@ async function anthropicGenerate(baseUrl: string, model: string, apiKey: string,
   return { content: data.content[0].text, tokens: data.usage?.output_tokens };
 }
 
-export async function generateEmbedding(text: string): Promise<Float32Array> {
-  const config = getConfig();
-  const { model, baseUrl } = config.embeddings;
+// Cached HuggingFace embedding pipeline (loaded once, reused)
+let hfPipeline: any = null;
 
+async function huggingfaceEmbed(text: string, model: string): Promise<Float32Array> {
+  if (!hfPipeline) {
+    const { pipeline } = await import('@huggingface/transformers');
+    hfPipeline = await pipeline('feature-extraction', model);
+  }
+  const output = await hfPipeline(text, { pooling: 'mean', normalize: true });
+  return new Float32Array(output.data);
+}
+
+async function ollamaEmbed(text: string, baseUrl: string, model: string): Promise<Float32Array> {
   const res = await fetch(`${baseUrl}/api/embed`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -110,6 +122,20 @@ export async function generateEmbedding(text: string): Promise<Float32Array> {
 
   const data = await res.json() as { embeddings: number[][] };
   return new Float32Array(data.embeddings[0]);
+}
+
+export async function generateEmbedding(text: string): Promise<Float32Array> {
+  const config = getConfig();
+  const { provider, model, baseUrl } = config.embeddings;
+
+  switch (provider) {
+    case 'huggingface':
+      return huggingfaceEmbed(text, model);
+    case 'ollama':
+      return ollamaEmbed(text, baseUrl, model);
+    default:
+      throw new Error(`Unknown embedding provider: ${provider}`);
+  }
 }
 
 export function cosineSimilarity(a: Float32Array, b: Float32Array): number {

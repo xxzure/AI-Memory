@@ -3,6 +3,10 @@ import { logger } from '../../utils/logger.js';
 
 export async function runContext(topic: string, opts: { tokens?: string }) {
   const maxTokens = parseInt(opts.tokens || '4000', 10);
+  if (isNaN(maxTokens)) {
+    logger.error('Invalid --tokens value: must be a number');
+    process.exit(1);
+  }
 
   logger.info(`Building context for "${topic}" (max ${maxTokens} tokens)...`);
 

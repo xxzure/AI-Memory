@@ -1,5 +1,10 @@
 # AI-Memory
 
+[![CI](https://github.com/xxzure/AI-Memory/actions/workflows/ci.yml/badge.svg)](https://github.com/xxzure/AI-Memory/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/ai-memory)](https://www.npmjs.com/package/ai-memory)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D22-brightgreen)](https://nodejs.org/)
+
 Portable AI memory — a unified conversation store across LLM platforms.
 
 When switching between ChatGPT, Claude, Gemini, and Ollama, each new model starts with zero context. AI-Memory solves this by importing, compacting, and searching your conversation history from any platform, then generating token-budgeted context bundles you can paste into any LLM.
@@ -22,7 +27,7 @@ ai-memory import chatgpt conversations.json
 # Search your conversations
 ai-memory search "typescript generics"
 
-# Summarize conversations into compact memories (requires Ollama)
+# Summarize conversations into compact memories (requires an LLM provider)
 ai-memory compact
 
 # Generate a context bundle for another LLM
@@ -86,8 +91,8 @@ Config lives at `~/.ai-memory/config.json` (auto-created on first run):
     "baseUrl": "http://localhost:11434"
   },
   "embeddings": {
-    "provider": "ollama",
-    "model": "nomic-embed-text",
+    "provider": "huggingface",
+    "model": "Xenova/all-MiniLM-L6-v2",
     "baseUrl": "http://localhost:11434"
   },
   "web": { "port": 3377 }
@@ -102,8 +107,8 @@ LLM providers: `ollama` (default, local, free), `openai`, `anthropic` (set `apiK
 - **Storage**: SQLite via `better-sqlite3`
 - **CLI**: `commander`
 - **Web**: `hono` + plain HTML/JS/CSS
-- **LLM**: Ollama (default); optional OpenAI/Anthropic API
-- **Embeddings**: Ollama `nomic-embed-text`
+- **LLM**: Ollama (default, local, free); optional OpenAI/Anthropic API
+- **Embeddings**: `@huggingface/transformers` (default, runs locally); optional Ollama
 - **Token counting**: `tiktoken`
 - **Testing**: `vitest`
 - **Bundler**: `tsup`

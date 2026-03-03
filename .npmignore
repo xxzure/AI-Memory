@@ -1,0 +1,14 @@
+src/
+tests/
+data/
+.github/
+.editorconfig
+.nvmrc
+tsconfig.json
+tsup.config.ts
+vitest.config.ts
+.gitignore
+.DS_Store
+*.db
+*.db-journal
+*.db-wal

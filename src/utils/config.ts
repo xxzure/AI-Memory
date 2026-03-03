@@ -11,7 +11,7 @@ export interface Config {
     apiKey?: string;
   };
   embeddings: {
-    provider: 'ollama';
+    provider: 'ollama' | 'huggingface';
     model: string;
     baseUrl: string;
   };
@@ -32,8 +32,8 @@ const DEFAULT_CONFIG: Config = {
     baseUrl: 'http://localhost:11434',
   },
   embeddings: {
-    provider: 'ollama',
-    model: 'nomic-embed-text',
+    provider: 'huggingface',
+    model: 'Xenova/all-MiniLM-L6-v2',
     baseUrl: 'http://localhost:11434',
   },
   web: {
@@ -54,9 +54,15 @@ export function getConfig(): Config {
     return cached;
   }
 
-  const raw = JSON.parse(readFileSync(CONFIG_FILE, 'utf-8'));
-  cached = { ...DEFAULT_CONFIG, ...raw };
-  return cached!;
+  const raw = JSON.parse(readFileSync(CONFIG_FILE, 'utf-8')) as Partial<Config>;
+  cached = {
+    ...DEFAULT_CONFIG,
+    ...raw,
+    llm: { ...DEFAULT_CONFIG.llm, ...raw.llm },
+    embeddings: { ...DEFAULT_CONFIG.embeddings, ...raw.embeddings },
+    web: { ...DEFAULT_CONFIG.web, ...raw.web },
+  };
+  return cached;
 }
 
 export function getConfigDir(): string {
