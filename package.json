@@ -1,0 +1,32 @@
+{
+  "name": "ai-memory",
+  "version": "0.1.0",
+  "description": "Portable AI memory — unified conversation store across LLM platforms",
+  "type": "module",
+  "bin": {
+    "ai-memory": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/index.ts",
+    "test": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.10",
+    "better-sqlite3": "^11.7.0",
+    "commander": "^13.1.0",
+    "hono": "^4.7.4",
+    "tiktoken": "^1.0.18",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.13.4",
+    "@types/uuid": "^10.0.0",
+    "tsup": "^8.4.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.6"
+  }
+}

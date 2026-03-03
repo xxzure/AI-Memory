@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Memory</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>AI Memory</h1>
+      <div class="stats">
+        <div>Conversations: <span id="stat-convos">-</span></div>
+        <div>Memories: <span id="stat-memories">-</span></div>
+      </div>
+    </header>
+
+    <nav>
+      <button class="active" data-tab="conversations">Conversations</button>
+      <button data-tab="memories">Memories</button>
+      <button data-tab="portrait">Portrait</button>
+      <button data-tab="search">Search</button>
+    </nav>
+
+    <div id="content"></div>
+  </div>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <button class="close" onclick="closeModal()">&times;</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
